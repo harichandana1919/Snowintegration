@@ -29,16 +29,16 @@ resource "azurerm_subnet_network_security_group_association" "appnsglink" {
 }
 
 
-resource "tls_private_key" "linuxkey" {
+resource "tls_private_key" "linuxkey1" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
-resource "local_file" "linuxpemkey"{
-  filename = "linuxkey.pem"
-  content=tls_private_key.linuxkey.private_key_pem
+resource "local_file" "linuxpemkey1"{
+  filename = "linuxkey1.pem"
+  content=tls_private_key.linuxkey1.private_key_pem
   depends_on = [
-    tls_private_key.linuxkey
+    tls_private_key.linuxkey1
   ]
 }
 
@@ -57,7 +57,7 @@ resource "azurerm_linux_virtual_machine" "linuxvm" {
   ]
   admin_ssh_key {
      username="linuxusr"
-     public_key = tls_private_key.linuxkey.public_key_openssh
+     public_key = tls_private_key.linuxkey1.public_key_openssh
    }
 
    
