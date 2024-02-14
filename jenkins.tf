@@ -28,22 +28,6 @@ resource "azurerm_subnet_network_security_group_association" "appnsglink" {
   network_security_group_id = azurerm_network_security_group.appnsg.id
 }
 
-
-resource "tls_private_key" "linuxkey" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "local_file" "linuxpemkey"{
-  filename = "linuxkey.pem"
-  content=tls_private_key.linuxkey.private_key_pem
-  depends_on = [
-    tls_private_key.linuxkey
-  ]
-}
-
-
-
 # creating linux vm with standard size d2s 
 resource "azurerm_linux_virtual_machine" "linuxvm" {
   name                = "linuxvm"
@@ -51,15 +35,11 @@ resource "azurerm_linux_virtual_machine" "linuxvm" {
   location            = local.location
   size                = "Standard_D2s_v3"
   admin_username      = "linuxusr"
+  admin_password      = "Raandstad@123"
   disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.appinterface.id
   ]
-  admin_ssh_key {
-     username="linuxusr"
-     public_key = tls_private_key.linuxkey.public_key_openssh
-   }
-
    
   os_disk {
     caching              = "ReadWrite"
@@ -74,12 +54,9 @@ resource "azurerm_linux_virtual_machine" "linuxvm" {
   }
   depends_on = [
     azurerm_network_interface.appinterface,
-    azurerm_resource_group.appgrp,
-    tls_private_key.linuxkey
-    
+    azurerm_resource_group.appgrp   
   ]
 }
-
 
 # Custom script to install Apache
 resource "azurerm_virtual_machine_extension" "example" {
